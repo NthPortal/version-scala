@@ -1,0 +1,8 @@
+/*
+!/src
+!/src/*
+!/*.md
+!LICENSE
+!.gitignore
+!pom.xml
+!.travis.yml
