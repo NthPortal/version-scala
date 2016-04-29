@@ -16,23 +16,18 @@ object BaseVersion {
   val v1_0_0 = BaseVersion(1, 0, 0)
 
   implicit private val ordering: Ordering[BaseVersion] = Ordering.by(v => (v.major, v.minor, v.patch))
-  private val versionLength = 3
 
   @throws[VersionFormatException]
   def parseVersion(version: String): BaseVersion = {
-    // Check that there are exactly 3 numbers in version
-    val split = version.split(".")
-    if (split.length != versionLength) {
-      throw new VersionFormatException(version)
-    }
-
-    // Check that all 3 are positive numbers
-    try {
-      val ints = split map Integer.parseInt
-      for (i <- ints if i < 0) throw new VersionFormatException(version)
-      BaseVersion(ints(0), ints(1), ints(2))
-    } catch {
-      case e: NumberFormatException => throw new VersionFormatException(version, e)
+    version.split(".") match {
+      case Array(major, minor, patch) =>
+        try {
+          BaseVersion(Integer.parseInt(major), Integer.parseInt(minor), Integer.parseInt(patch))
+        } catch {
+          case e @ (_: IllegalArgumentException | _: NumberFormatException) =>
+            throw new VersionFormatException(version, e)
+        }
+      case _ => throw new VersionFormatException(version)
     }
   }
 }
