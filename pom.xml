@@ -135,7 +135,6 @@
                             <addClasspath>false</addClasspath>
                             <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                             <addDefaultSpecificationEntries>true</addDefaultSpecificationEntries>
-                            <mainClass>${project.groupId}.imgrecbasic.App</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
