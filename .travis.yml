@@ -5,3 +5,7 @@ addons:
     packages:
       - oracle-java8-installer
 jdk: oraclejdk8
+
+after_success:
+ - echo "<settings><servers><server><id>snapshots</id><username>\${env.OSSRH_USER}</username><password>\${env.OSSRH_PASS}</password></server><server><id>release</id><username>\${env.OSSRH_USER}</username><password>\${env.OSSRH_PASS}</password></server></servers></settings>" > ~/settings.xml
+ - "[[ $TRAVIS_PULL_REQUEST == false ]] && ( [[ $TRAVIS_BRANCH == master ]] || [[ $TRAVIS_BRANCH == dev ]] ) && mvn deploy --settings ~/settings.xml"
