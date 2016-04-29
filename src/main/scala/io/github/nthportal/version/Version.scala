@@ -6,16 +6,16 @@ package io.github.nthportal.version
   * Specifically, if the factories had different default build types, then the
   * versions may evaluate as unequal.
   *
-  * @param core
+  * @param base
   * @param releaseType
   * @param defaultType
   * @tparam T
   */
-final case class Version[T <: ReleaseType with Ordered[T]] private[version](core: CoreVersion,
+final case class Version[T <: ReleaseType with Ordered[T]] private[version](base: BaseVersion,
                                                                             releaseType: T,
                                                                             private val defaultType: Boolean,
                                                                             ordering: Ordering[Version[T]]) extends Ordered[Version[T]] {
   override def compare(that: Version[T]): Int = ordering.compare(this, that)
 
-  override def toString: String = core + (if (defaultType) "" else "-" + releaseType.extension)
+  override def toString: String = base + (if (defaultType) "" else "-" + releaseType.extension)
 }

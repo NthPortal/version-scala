@@ -3,7 +3,7 @@ package io.github.nthportal.version
 final class VersionFactory[T <: ReleaseType with Ordered[T]] private(releaseTypeFromStr: String => T,
                                                                      isDefaultReleaseType: T => Boolean,
                                                                      defaultReleaseType: Option[T]) {
-  private val ordering: Ordering[Version[T]] = Ordering.by(v => (v.core, v.releaseType))
+  private val ordering: Ordering[Version[T]] = Ordering.by(v => (v.base, v.releaseType))
 
   def this(releaseTypeFromStr: String => T, defaultReleaseType: T) =
     this(releaseTypeFromStr, (t: T) => t == defaultReleaseType, Some(defaultReleaseType))
@@ -20,11 +20,11 @@ final class VersionFactory[T <: ReleaseType with Ordered[T]] private(releaseType
   def parseVersion(version: String): Version[T] = {
     version.split("-", 2) match {
       case Array(v) =>
-        if (defaultReleaseType.isDefined) newVersion(CoreVersion.parseVersion(v), defaultReleaseType.get)
+        if (defaultReleaseType.isDefined) newVersion(BaseVersion.parseVersion(v), defaultReleaseType.get)
         else throw new UnsupportedOperationException("Cannot parse version: " + v + "; no default release type defined")
       case Array(v, ext) =>
         try {
-          newVersion(CoreVersion.parseVersion(v), releaseTypeFromStr(ext))
+          newVersion(BaseVersion.parseVersion(v), releaseTypeFromStr(ext))
         } catch {
           case e: UnsupportedOperationException => throw e
           case e: Throwable => throw new VersionFormatException(version, e)
@@ -32,10 +32,10 @@ final class VersionFactory[T <: ReleaseType with Ordered[T]] private(releaseType
     }
   }
 
-  def newVersion(core: CoreVersion, releaseType: T): Version[T] =
+  def newVersion(core: BaseVersion, releaseType: T): Version[T] =
     Version(core, releaseType, isDefaultReleaseType(releaseType), ordering)
 
-  def apply(core: CoreVersion, releaseType: T): Version[T] = newVersion(core, releaseType)
+  def apply(core: BaseVersion, releaseType: T): Version[T] = newVersion(core, releaseType)
 }
 
 object VersionFactory {
