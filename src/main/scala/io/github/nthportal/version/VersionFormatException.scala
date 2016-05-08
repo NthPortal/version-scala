@@ -13,7 +13,7 @@ import io.github.nthportal.version.VersionFormatException._
   *                      a [[NumberFormatException]] from an improperly
   *                      formatted major, minor, or patch version number)
   */
-class VersionFormatException(versionString: String, cause: Throwable)
+class VersionFormatException private[version](versionString: String, cause: Throwable)
   extends IllegalArgumentException(messagePrefix + versionString, cause) {
   /**
     * Constructs a `VersionFormatException` with an argument specifying the
@@ -21,7 +21,7 @@ class VersionFormatException(versionString: String, cause: Throwable)
     *
     * @param versionString the improperly formatted version string
     */
-  def this(versionString: String) = this(versionString, null)
+  private[version] def this(versionString: String) = this(versionString, null)
 }
 
 private object VersionFormatException {
