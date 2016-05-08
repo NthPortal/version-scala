@@ -30,7 +30,6 @@ object AlphaBeta {
     case PreAlpha.extension => PreAlpha
     case Alpha.extension => Alpha
     case Beta.extension => Beta
-    case Release.extension => Release
     case s if s.startsWith(rcPrefix + "0") =>
       val rcNum = s.substring(rcPrefix.length)
       if (rcNum.length == 1) ReleaseCandidate(0)

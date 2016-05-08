@@ -25,7 +25,6 @@ object MavenBasic {
     */
   val defaultFactory: VersionFactory[MavenBasic] = VersionFactory({
     case Snapshot.extension => Snapshot
-    case Release.extension => Release
     case s => throw new IllegalArgumentException("Invalid extension: " + s)
   },
   Release)
