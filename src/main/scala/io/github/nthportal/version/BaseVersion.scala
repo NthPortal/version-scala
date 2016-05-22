@@ -1,5 +1,7 @@
 package io.github.nthportal.version
 
+import scala.util.Try
+
 /**
   * Represents a [[http://semver.org/ SemVer]] version
   * `[[major]].[[minor]].[[patch]]`.
@@ -70,4 +72,15 @@ object BaseVersion {
       case _ => throw new VersionFormatException(version)
     }
   }
+
+  /**
+    * Tries to parse a version string (`x.x.x`) into a [[BaseVersion]].
+    *
+    * Returns a [[Try]] containing a [[BaseVersion]] if it was a valid version string,
+    * or a [[VersionFormatException]] if it was not a valid version string.
+    *
+    * @param version a string in the format `x.x.x` to parse into a [[BaseVersion]]
+    * @return a [[Try]] containing the result of the parsing
+    */
+  def tryParseVersion(version: String): Try[BaseVersion] = Try(parseVersion(version))
 }

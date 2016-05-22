@@ -90,10 +90,10 @@ class BaseVersionTest {
     assertEquals(BaseVersion(10, 0, 3), BaseVersion.parseVersion("10.0.3"))
 
     // Check that strings with the wrong number of '.'-separated numbers fail to parse
-    (Try(BaseVersion.parseVersion("")) ::
-      Try(BaseVersion.parseVersion("3")) ::
-      Try(BaseVersion.parseVersion("1.0")) ::
-      Try(BaseVersion.parseVersion("1.0.0.2")) ::
+    (BaseVersion.tryParseVersion("") ::
+      BaseVersion.tryParseVersion("3") ::
+      BaseVersion.tryParseVersion("1.0") ::
+      BaseVersion.tryParseVersion("1.0.0.2") ::
       Nil)
       .foreach(t => {
         assertTrue(t.isFailure)
@@ -101,10 +101,10 @@ class BaseVersionTest {
       })
 
     // Check improperly formatted numbers
-    (Try(BaseVersion.parseVersion("-1.3.3")) ::
-      Try(BaseVersion.parseVersion("0.-2.3")) ::
-      Try(BaseVersion.parseVersion("2.4.-9")) ::
-      Try(BaseVersion.parseVersion("-3.-2.-6")) ::
+    (BaseVersion.tryParseVersion("-1.3.3") ::
+      BaseVersion.tryParseVersion("0.-2.3") ::
+      BaseVersion.tryParseVersion("2.4.-9") ::
+      BaseVersion.tryParseVersion("-3.-2.-6") ::
       Nil)
       .foreach(t => {
         assertTrue(t.isFailure)
