@@ -1,6 +1,9 @@
 package io.github.nthportal.version
 
+import java.util.Objects
 import java.util.function.Function
+
+import scala.util.Try
 
 /**
   * A factory used for creating `[[Version]]`s with a given [[ReleaseType]].
@@ -15,7 +18,12 @@ import java.util.function.Function
   */
 final class VersionFactory[T <: ReleaseType with Ordered[T]] private(releaseTypeFromStr: String => T,
                                                                      isDefaultReleaseType: T => Boolean,
-                                                                     defaultReleaseType: Option[T]) {
+                                                                     defaultReleaseType: Option[T])
+  extends ((BaseVersion, T) => Version[T]) {
+  // Null checks
+  Objects.requireNonNull(releaseTypeFromStr)
+  defaultReleaseType.map(t => Objects.requireNonNull(t))
+
   private val ordering: Ordering[Version[T]] = Ordering.by(v => (v.base, v.releaseType))
 
   /**
@@ -58,13 +66,27 @@ final class VersionFactory[T <: ReleaseType with Ordered[T]] private(releaseType
     *                           appended to the version `x.x.x`
     */
   def this(defaultReleaseType: T) =
-    this(VersionFactory.parsingNotSupported.asInstanceOf[(String => T)], defaultReleaseType)
+    this(VersionFactory.parsingNotSupported, defaultReleaseType)
 
   /**
     * Constructs a `VersionFactory` with no default release type, and which does not
     * support parsing `[[Version]]`s from strings.
     */
-  def this() = this(VersionFactory.parsingNotSupported.asInstanceOf[(String => T)])
+  def this() = this(VersionFactory.parsingNotSupported)
+
+  /**
+    * Tries to parse a version string (`x.x.x[-release_type]`) into a [[Version]].
+    *
+    * Returns a [[Try]] containing a [[Version]] if it was a valid version string,
+    * a [[VersionFormatException]] if it was not a valid version string, or an
+    * [[UnsupportedOperationException]] if the factory does not support parsing
+    * version strings.
+    *
+    * @param version a string in the format `x.x.x` or `x.x.x-release_type` to parse into
+    *                a [[Version]]
+    * @return a [[Try]] containing the result of the parsing
+    */
+  def tryParseVersion(version: String): Try[Version[T]] = Try(parseVersion(version))
 
   /**
     * Parses a version string (`x.x.x[-release_type]`) into a [[Version]].
@@ -91,29 +113,35 @@ final class VersionFactory[T <: ReleaseType with Ordered[T]] private(releaseType
           newVersion(BaseVersion.parseVersion(v), releaseTypeFromStr(ext))
         } catch {
           case e: UnsupportedOperationException => throw e
-          case e: Throwable => throw new VersionFormatException(version, e)
+          case e@(_: IllegalArgumentException | _: VersionFormatException) =>
+            throw new VersionFormatException(version, e)
         }
     }
   }
-
-  /**
-    * Functional wrapper around [[newVersion]].
-    */
-  def apply(base: BaseVersion, releaseType: T): Version[T] = newVersion(base, releaseType)
 
   /**
     * Creates a new [[Version]] with the specified [[BaseVersion]] and [[ReleaseType]]
     *
     * @param base        the [[BaseVersion]] part of the version
     * @param releaseType the [[ReleaseType]] of the version
+    * @throws NullPointerException if `base` or `releaseType` is null
     * @return a new version with the specified base and release type
     */
-  def newVersion(base: BaseVersion, releaseType: T): Version[T] =
+  @throws[NullPointerException]
+  def newVersion(base: BaseVersion, releaseType: T): Version[T] = {
+    Objects.requireNonNull(base)
+    Objects.requireNonNull(releaseType)
     Version(base, releaseType, isDefaultReleaseType(releaseType), ordering)
+  }
+
+  /**
+    * Functional wrapper around [[newVersion]].
+    */
+  def apply(base: BaseVersion, releaseType: T): Version[T] = newVersion(base, releaseType)
 }
 
 object VersionFactory {
-  private val parsingNotSupported: (String => Any) =
+  private val parsingNotSupported: (String => Nothing) =
     (_: String) => throw new UnsupportedOperationException("Factory only supports parsing version from string for " +
       "default release type")
 
