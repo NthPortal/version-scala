@@ -17,7 +17,7 @@ final case class BaseVersion(major: Int, minor: Int, patch: Int) extends Ordered
     throw new IllegalArgumentException("Major, minor, and patch version numbers must be positive")
   }
 
-  override def compare(that: BaseVersion): Int = this compare that
+  override def compare(that: BaseVersion): Int = BaseVersion.ordering.compare(this, that)
 
   /**
     * Returns this version formatted as `[[major]].[[minor]].[[patch]]`
@@ -48,7 +48,7 @@ object BaseVersion {
     */
   val v1_0_0 = apply(1, 0, 0)
 
-  implicit private val ordering: Ordering[BaseVersion] = Ordering.by(v => (v.major, v.minor, v.patch))
+  private val ordering: Ordering[BaseVersion] = Ordering.by(v => (v.major, v.minor, v.patch))
 
   /**
     * Parses a version string (`x.x.x`) into a [[BaseVersion]].
@@ -59,7 +59,7 @@ object BaseVersion {
     */
   @throws[VersionFormatException]
   def parseVersion(version: String): BaseVersion = {
-    version.split(".") match {
+    version.split('.') match {
       case Array(major, minor, patch) =>
         try {
           apply(Integer.parseInt(major), Integer.parseInt(minor), Integer.parseInt(patch))
