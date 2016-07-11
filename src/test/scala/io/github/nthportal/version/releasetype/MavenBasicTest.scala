@@ -1,46 +1,39 @@
 package io.github.nthportal.version.releasetype
 
-import io.github.nthportal.version.BaseVersion
-import org.junit.Test
-import org.junit.Assert._
+import io.github.nthportal.version.{BaseVersion, VersionFormatException}
 import io.github.nthportal.version.releasetype.{MavenBasic => Mvn}
+import org.scalatest.FunSuite
 
-class MavenBasicTest {
-  @Test
-  def compareTest(): Unit = {
-    assertTrue(Mvn.Release > Mvn.Snapshot)
+class MavenBasicTest extends FunSuite {
+  test("comparison works properly") {
+    assert(Mvn.Release > Mvn.Snapshot)
   }
-
-  @Test
-  def extensionTest(): Unit = {
-    assertEquals("SNAPSHOT", Mvn.Snapshot.extension)
+  
+  test("extension and toString are correct") {
+    val expected = "SNAPSHOT"
+    assert(Mvn.Snapshot.extension == expected)
+    assert(Mvn.Snapshot.toString == expected)
   }
-
-  @Test
-  def testToString(): Unit = {
-    assertEquals("SNAPSHOT", Mvn.Snapshot.toString)
-  }
-
-  @Test
-  def defaultFactoryTest(): Unit = {
+  
+  test("default factory works correctly") {
     val factory = Mvn.defaultFactory
 
     // Construction and toString tests
     val v1 = factory(BaseVersion.v1_0_0, Mvn.Snapshot)
-    assertEquals(Mvn.Snapshot, v1.releaseType)
-    assertEquals("1.0.0-SNAPSHOT", v1.toString)
+    assert(v1.releaseType == Mvn.Snapshot)
+    val v1Expected = "1.0.0-SNAPSHOT"
+    assert(v1.toString == v1Expected)
 
     val v2 = factory(BaseVersion.v0_1_0, Mvn.Release)
-    assertEquals(Mvn.Release, v2.releaseType)
-    assertEquals("0.1.0", v2.toString)
+    assert(v2.releaseType == Mvn.Release)
+    val v2Expected = "0.1.0"
+    assert(v2.toString == v2Expected)
 
     // Parse tests
-    assertEquals(v1, factory.parseVersion("1.0.0-SNAPSHOT"))
-    assertEquals(v2, factory.parseVersion("0.1.0"))
+    assert(factory.parseVersion(v1Expected) == v1)
+    assert(factory.parseVersion(v2Expected) == v2)
 
-    (factory.tryParseVersion("1.0.0-RELEASE") ::
-      factory.tryParseVersion("1.0") ::
-      Nil)
-      .foreach(t => assertTrue(t.isFailure))
+    ("1.0.0-RELEASE" :: "1.0" :: Nil)
+      .foreach(s => intercept[VersionFormatException] { factory.parseVersion(s) })
   }
 }
