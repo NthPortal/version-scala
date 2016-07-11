@@ -1,5 +1,6 @@
-language: java
-sudo: false
+language: scala
+scala:
+   - 2.11.8
 addons:
   apt:
     packages:

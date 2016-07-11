@@ -1,13 +1,11 @@
 package io.github.nthportal.version.releasetype
 
-import org.junit.Assert._
-import org.junit.Test
+import org.scalatest.FunSuite
 
-class AlphaBetaTest {
-  @Test
-  @throws[Exception]
-  def testRCToString() {
+class AlphaBetaTest extends FunSuite {
+  test("toString for ReleaseCandidate works properly") {
     val rc1 = AlphaBeta.ReleaseCandidate(1)
-    assertEquals(rc1.extension, rc1.toString)
+    assert(rc1.toString == rc1.extension)
+    assert(rc1.extension == "rc.1")
   }
 }
